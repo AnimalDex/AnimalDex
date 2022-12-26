@@ -1,0 +1,48 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Photo</title>
+  <script type="text/javascript" src="https://unpkg.com/webcam-easy/dist/webcam-easy.min.js"></script>
+  <link rel="shortcut icon" href="#">
+</head>
+
+<body>	
+  <video id="webcam" autoplay playsinline width="640" height="480"></video>
+  <canvas id="canvas" class="d-none"></canvas>
+  <button id="snap">Snap Photo</button>
+  <div id="result"></div>
+</body>
+
+<script type="text/javascript">
+  const webcamElement = document.getElementById('webcam');
+  const canvasElement = document.getElementById('canvas');
+  const webcam = new Webcam(webcamElement, 'user', canvasElement);
+
+  webcam.start()
+    .then(result =>{
+      console.log("webcam started");
+    })
+    .catch(err => {
+      console.log(err);
+    });
+
+  document.getElementById("snap").addEventListener("click", () => {
+    webcam.snap()
+      .then(data_uri => {
+        document.querySelector('#result').innerHTML = `
+          <h2>Here is your image:</h2>
+          <img src="${data_uri}"/>
+        `;
+      })
+      .catch(error => {
+        document.getElementById("result").innerHTML = error;
+      });
+      // Save image to file
+      webcam.upload(data_uri, 'upload.php', function (code, text) {
+        console.log('Save successfully');
+      });
+  });
+</script>
+</html>

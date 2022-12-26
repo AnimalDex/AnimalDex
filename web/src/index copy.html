@@ -1,0 +1,147 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Practica 12</title>
+  <script type="module" src="javaScript/camara.js" defer></script>
+  <script type="module" src="javaScript/salida.js" defer></script>
+  <link rel="shortcut icon" href="#">
+</head>
+
+<body>
+  <form name="update" method="post" >
+    <button name = "update" type="submit"> python script</button>
+  </form>
+
+  <div class="jumbotron" style="margin-top:20px;padding:20px;">    
+      <p><span id="errorMsg"></span></p>    
+      <div class="row">    
+          <div class="col-lg-6">    
+              <!-- Here we streaming video from webcam -->    
+              <h4>    
+                  Video coming from Webcam  <button class="btn btn-primary" id="btnCapture">Capture to Canvas >></button>    
+              </h4>    
+              <video id="video" playsinline autoplay></video>    
+          </div>    
+      
+          <div class="col-lg-6">    
+              <h4>    
+                  Captured image from Webcam <input type="button" class="btn btn-primary" id="btnSave" name="btnSave" value="Save the canvas(image) to server" />    
+              </h4>    
+              <!-- Webcam video snapshot -->    
+              <canvas id="myCanvas" style="border:solid 1px #ddd;background-color:white;" id="canvas" width="475" height="475"></canvas>    
+          </div>    
+      </div>    
+  </div>  
+
+  <input type="button" id='script' name="scriptbutton" value=" Run Script " onclick="goPython()">
+  <script src="http://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+</body>
+
+
+<?php
+if (isset($_POST['update'])) {
+    exec('/usr/bin/python3 test.py ".$input_val."');
+}
+?>
+<script>
+  function goPython(){
+    print("hello");
+      $.ajax({
+        url: "javaScript/test.py",
+       context: document.body
+      }).done(function() {
+       alert('finished python script');;
+      });
+  }
+</script>
+
+<script type="text/javascript">  
+  var video = document.querySelector("#video");  
+
+  // Basic settings for the video to get from Webcam  
+  const constraints = {  
+      audio: false,  
+      video: {  
+          width: 475, height: 475  
+      }  
+  };  
+
+  // This condition will ask permission to user for Webcam access  
+  if (navigator.mediaDevices.getUserMedia) {  
+      navigator.mediaDevices.getUserMedia(constraints)  
+          .then(function (stream) {  
+              video.srcObject = stream;  
+          })  
+          .catch(function (err0r) {  
+              console.log("Something went wrong!");  
+          });  
+  }  
+
+  function stop(e) {  
+      var stream = video.srcObject;  
+      var tracks = stream.getTracks();  
+
+      for (var i = 0; i < tracks.length; i++) {  
+          var track = tracks[i];  
+          track.stop();  
+      }  
+      video.srcObject = null;  
+  }  
+</script>  
+
+<script type="text/javascript">  
+  // Below code to capture image from Video tag(Webcam streaming)  
+  $("#btnCapture").click(function () {  
+      var canvas = document.getElementById('canvas');  
+      var context = canvas.getContext('2d');  
+
+      // Capture the image into canvas from Webcam streaming Video element  
+      context.drawImage(video, 0, 0);  
+  });  
+
+  // Upload image to server - ajax call - with the help of base64 data as a parameter  
+  $("#btnSave").click(function () {  
+
+      // Below new canvas to generate flip/mirron image from existing canvas  
+      var destinationCanvas = document.createElement("canvas");  
+      var destCtx = destinationCanvas.getContext('2d');  
+
+      destinationCanvas.height = 500;  
+      destinationCanvas.width = 500;  
+
+      destCtx.translate(video.videoWidth, 0);  
+      destCtx.scale(-1, 1);  
+      destCtx.drawImage(document.getElementById("canvas"), 0, 0);  
+
+
+    let downloadLink = document.createElement('a');
+    downloadLink.setAttribute('download', 'CanvasAsImage.png');
+    destCtx.toBlob(function(blob) {
+      let url = URL.createObjectURL(blob);
+      downloadLink.setAttribute('href', url);
+      downloadLink.click();
+    });
+  });  
+</script>
+
+<script type="text/javascript">
+  const canvas = document.getElementById('myCanvas');
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = 'red';
+  ctx.fillRect(0,0,100,100);
+  ctx.lineWidth = 10;
+  ctx.strokeRect(20, 20, 60, 60);
+  function DownloadCanvasAsImage(){
+    let downloadLink = document.createElement('a');
+    downloadLink.setAttribute('download', 'CanvasAsImage.png');
+    let canvas = document.getElementById('myCanvas');
+    let dataURL = canvas.toDataURL('image/png');
+    let url = dataURL.replace(/^data:image\/png/,'data:application/octet-stream');
+    downloadLink.setAttribute('href',url);
+    downloadLink.click();
+  }
+</script>
+
+</html>

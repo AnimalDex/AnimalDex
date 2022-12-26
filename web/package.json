@@ -1,0 +1,14 @@
+{
+  "name": "AnimalDex",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "devDependencies": {
+    "@types/node": "^16.11.25",
+    "core-js": "^3.21.1",
+    "express": "^4.17.1"
+  },
+  "scripts": {
+    "web": "node web/app.js"
+  }
+}
